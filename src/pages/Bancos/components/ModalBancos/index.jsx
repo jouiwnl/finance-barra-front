@@ -95,7 +95,6 @@ export default function({ idBanco, triggerModal, onClose }) {
                 <Form.Item 
                   rules={[{ required: true, message: '' }]} 
                   name="nome"
-                  label="Nome"
                   style={{ marginBottom: 10 }}
                 >
                   <Input />
@@ -109,7 +108,6 @@ export default function({ idBanco, triggerModal, onClose }) {
                 <Form.Item 
                   rules={[{ required: true, message: '' }]} 
                   name="contaCorrente"
-                  label="Conta corrente"
                   style={{ marginBottom: 10 }}
                 >
                   <Input />
