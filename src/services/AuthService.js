@@ -6,6 +6,6 @@ export class AuthService {
 	}
 
   static getCurrent() {
-    return api.get('/funcionarios/current');
+    return api.get('/usuarios/current');
   }
 }

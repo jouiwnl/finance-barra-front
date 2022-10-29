@@ -1,4 +1,4 @@
-import { Alert, Button, Col, Input, Row } from 'antd';
+import { Alert, Button, Col, Form, Input, Row } from 'antd';
 import React from 'react';
 import './styles.css'
 
@@ -8,21 +8,37 @@ import {
   UserOutlined,
   LockOutlined
 } from '@ant-design/icons';
+import CustomLabel from '../../components/CustomLabel';
+import { notificar } from '../../utils/Notification';
 
 export default function() {
-  const [user, setUser] = React.useState({});
   const [isLogging, setIsLogging] = React.useState(false);
+  const formRef = React.useRef();
+
+  const [form] = Form.useForm();
 
   const { handleLogin } = React.useContext(AuthContext);
 
-  async function login() {
+  function onLogin() {
+    form.validateFields()
+      .then(values => {
+        login(values);
+      })
+      .catch((info) => {
+        notificar('error', 'Houve um erro ao validar o formulário. Preencha os campos corretamente');
+      });
+  }
+
+  async function login(values) {
     setIsLogging(true);
-    await handleLogin(user);
+    await handleLogin(values);
     setIsLogging(false);
   }
 
-  function handleInputChange(name, value) {
-    setUser({...user, [name]: value});
+  function handleKeyUp(event) {
+    if (event.keyCode === 13) {
+      onLogin();
+    }
   }
   
 	return (
@@ -31,41 +47,49 @@ export default function() {
         <div className="img-container">
           <img src="https://upload.wikimedia.org/wikipedia/pt/9/90/BarraFC2020.png" alt="logo" />
         </div>
-        <Row>
-          <Col span={24}>
-            <label htmlFor="usuario">Usuário</label>
-            <Input 
-              autoComplete='off' 
-              size="large" 
-              prefix={<UserOutlined />} 
-              onChange={(e) => handleInputChange('username', e.target.value)}
-              required 
-              id='usuario' 
-              value={user.username}
-            />
-          </Col>
-        </Row>
+          <Form onKeyUp={handleKeyUp} ref={formRef} layout="vertical" form={form}>
+            <Row>
+              <Col span={24}>
+                <CustomLabel htmlFor="username" labelText="Usuário" required={true} />
+                <Form.Item 
+                  rules={[{ required: true, message: '' }]} 
+                  name="username"
+                  id='username' 
+                  style={{ marginBottom: 10 }}
+                >
+                  <Input 
+                    autoComplete='off' 
+                    size="large" 
+                    prefix={<UserOutlined />} 
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
-        <Row>
-          <Col span={24} style={{ marginTop: 15 }}>
-            <label htmlFor="senha">Senha</label>
-            <Input 
-              size="large" 
-              prefix={<LockOutlined />} 
-              type='password' 
-              onChange={(e) => handleInputChange('password', e.target.value)}
-              required 
-              id='senha' 
-              value={user.password}
-            />
-          </Col>
-        </Row>
+            <Row gutter={16}>
+              <Col span={24}>
+                <CustomLabel htmlFor="password" labelText="Senha" required={true} />
+                <Form.Item 
+                    rules={[{ required: true, message: '' }]} 
+                    name="password"
+                    style={{ marginBottom: 10 }}
+                    id='senha' 
+                  >
+                    <Input 
+                      size="large" 
+                      prefix={<LockOutlined />} 
+                      type='password' 
+                    />
+                </Form.Item>
+              </Col>
+            </Row>
 
-        <Alert style={{ marginTop: 20 }} message="Caso não possua uma conta, contate o admnistrador do sistema!" />
+            <Alert style={{ marginTop: 20 }} message="Caso não possua uma conta, contate o admnistrador do sistema!" />
 
-        <Button onClick={login} loading={isLogging} block className="button-login" type="primary">
-          Login
-        </Button>
+            <Button onClick={onLogin} loading={isLogging} block className="button-login" type="primary">
+              Login
+            </Button>
+          </Form>
       </div>
     </div>
   )

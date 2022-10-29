@@ -24,7 +24,7 @@ function AuthProvider({ children }) {
 		return AuthService.signIn(user).then(response => {
 			const token = response.headers.authorization;
 			localStorage.setItem('session_token', token);
-			customHistory.push('/funcionarios');
+			customHistory.push('/lancamentos-englobados');
       setAuthenticated(true);
 		}).catch(() => notificar('error', 'Usuário ou senha incorretos'))
 	}

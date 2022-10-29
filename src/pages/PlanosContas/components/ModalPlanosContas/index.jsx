@@ -1,15 +1,20 @@
 import React from 'react'
-import {  Button, Col, Input, Modal, Row } from 'antd';
+import {  Button, Col, Form, Input, Modal, Row } from 'antd';
 
 import { notificar } from '../../../../utils/Notification'
 import Tracker from '../../../../components/Tracker';
 import { PlanosContasService } from '../../../../services/PlanosContasService';
 
+import CustomLabel from '../../../../components/CustomLabel';
+
 export default function({ idPlanos, triggerModal, onClose }) {
 	const [isModalOpen, setIsModalOpen] = React.useState(triggerModal);
-  const [form, setForm] = React.useState({ sinteticos: [] });
   const [loadingSave, setLoadingSave] = React.useState(false);
   const [loadingRegister, setLoadingRegister] = React.useState(false);
+
+  const [planosConta, setPlanosConta] = React.useState({});
+  
+  const [form] = Form.useForm();
 
   React.useEffect(() => {
     setIsModalOpen(triggerModal)
@@ -23,14 +28,24 @@ export default function({ idPlanos, triggerModal, onClose }) {
 
     setLoadingRegister(true)
     PlanosContasService.findOne(idPlanos)
-      .then(({ data }) => setForm(data))
+      .then(({ data }) => setPlanosConta(data))
       .finally(() => setLoadingRegister(false));
   }
 
-  function handleSave() {
+  function beforeSave() {
+    form.validateFields()
+      .then(values => {
+        handleSave(values);
+      })
+      .catch((info) => {
+        notificar('error', 'Houve um erro ao validar o formulário. Preencha os campos corretamente');
+      });
+  }
+
+  function handleSave(values) {
     setLoadingSave(true)
     
-    PlanosContasService.save(form)
+    PlanosContasService.save(values)
       .then(() => {
         notificar('success', 'Registro salvo com sucesso')
         closeModal(true);
@@ -43,17 +58,13 @@ export default function({ idPlanos, triggerModal, onClose }) {
     setIsModalOpen(false);
   };
 
-  function handleInputChange(name, value) {
-    setForm({...form, [name]: value});
-  }
-
   function ModalFooter() {
     return (
       <>
         <Button key="back" onClick={closeModal}>
           Cancelar
         </Button>
-        <Button key="submit" type="primary" loading={loadingSave} onClick={handleSave}>
+        <Button key="submit" type="primary" loading={loadingSave} onClick={beforeSave}>
           Submit
         </Button>
       </>
@@ -75,26 +86,47 @@ export default function({ idPlanos, triggerModal, onClose }) {
         </div>
       ) : (
         <>
-          <Row>
-            <Col span={24}>
-              <label htmlFor="codigo">Código</label>
-              <Input required id='codigo' onChange={(e) => handleInputChange('codigo', e.target.value)} value={form.codigo ?? ''}/>
-            </Col>
-          </Row>
+          <Form layout="vertical" form={form} initialValues={planosConta}>
+            <Form.Item name="id" style={{ display: 'none' }}></Form.Item>
+            <Row>
+              <Col span={24}>
+                <CustomLabel htmlFor="codigo" labelText="Código" required={true} />
+                <Form.Item 
+                  rules={[{ required: true, message: '' }]} 
+                  name="codigo"
+                  style={{ marginBottom: 10 }}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
 
-          <Row style={{ marginTop: 15 }}>
-            <Col span={24}>
-              <label htmlFor="descricao">Descrição</label>
-              <Input required id='descricao' onChange={(e) => handleInputChange('descricao', e.target.value)} value={form.descricao ?? ''}/>
-            </Col>
-          </Row>
+            <Row>
+              <Col span={24}>
+                <CustomLabel htmlFor="descricao" labelText="Descrição" required={true} />
+                <Form.Item 
+                  rules={[{ required: true, message: '' }]} 
+                  name="descricao"
+                  style={{ marginBottom: 10 }}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
 
-          <Row style={{ marginTop: 15 }}>
-            <Col span={24}>
-              <label htmlFor="alocacaoContabil">Alocação contábil</label>
-              <Input required id='alocacaoContabil' onChange={(e) => handleInputChange('alocacaoContabil', e.target.value)} value={form.alocacaoContabil ?? ''}/>
-            </Col>
-          </Row>
+            <Row>
+              <Col span={24}>
+                <CustomLabel htmlFor="alocacaoContabil" labelText="Alocação contábil" required={true} />
+                <Form.Item 
+                  rules={[{ required: true, message: '' }]} 
+                  name="alocacaoContabil"
+                  style={{ marginBottom: 10 }}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
         </>
       )}
       

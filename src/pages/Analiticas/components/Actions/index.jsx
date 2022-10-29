@@ -1,5 +1,7 @@
 import React from 'react'
-import { Button, Space, Typography, Popconfirm } from 'antd'
+import { Button, Space, Popconfirm } from 'antd'
+
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons'
 
 import ModalAnaliticas from '../ModalAnaliticas';
 import { notificar } from '../../../../utils/Notification';
@@ -30,20 +32,21 @@ export default function({ record, reload }) {
 
 	return (
 		<Space size="middle">
+
+			<Button size='small' onClick={handleOpenModal} type="default">
+        <EditOutlined />
+			</Button>
+
       <Popconfirm
         title="Deseja remover o registro?"
         onConfirm={() => handleDelete(record.id)}
         okText="Sim"
         cancelText="Não"
       >
-        <Typography.Link>
-          Remover
-        </Typography.Link>
+        <Button size='small' type="primary" danger>
+          <DeleteOutlined />
+        </Button>
       </Popconfirm>
-
-			<Button onClick={handleOpenModal} type="primary">
-				Editar
-			</Button>
 
 			{triggerModal && <ModalAnaliticas onClose={onCloseModal} idAnalitico={record.id} triggerModal={triggerModal} />}
 		</Space>

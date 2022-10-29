@@ -2,16 +2,16 @@ import { Breadcrumb, Button, Layout, Skeleton } from 'antd';
 import { Table, Input  } from 'antd';
 import React from 'react';
 
-import { api } from '../../config/axiosConfig';
+import { UsuariosService } from '../../services/UsuariosService';
 import Actions from './components/Actions';
-import ModalFuncionarios from './components/ModalFuncionarios';
+import ModalUsuarios from './components/ModalUsuarios';
 
 const { Content } = Layout;
 const { Search } = Input;
 
 export default function() {
-  const [funcionarios, setFuncionarios] = React.useState([])
-  const [funcionariosFiltered, setFuncionariosFiltered] = React.useState(null)
+  const [usuarios, setUsuarios] = React.useState([])
+  const [usuariosFiltered, setUsuariosFiltered] = React.useState(null)
   const [loadingRegisters, setLoadingRegisters] = React.useState(false);
   const [triggerModal, setTriggerModal] = React.useState(false)
 
@@ -23,8 +23,8 @@ export default function() {
     },
     {
       title: 'Usuário',
-      dataIndex: 'usuario',
-      key: 'usuario',
+      dataIndex: 'user',
+      key: 'user',
     },
     {
       title: 'Cargo',
@@ -35,7 +35,10 @@ export default function() {
       title: '',
       key: 'acoes',
       align: 'center',
-      render: (_, record) => <Actions reload={init} record={record}/>
+      render: (_, record) => 
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'end' }}>
+          <Actions reload={init} record={record} />
+        </div>
     },
   ];
 
@@ -58,15 +61,15 @@ export default function() {
   function init() {
     setLoadingRegisters(true)
 
-    api.get('/funcionarios')
-      .then(({ data }) => setFuncionarios(data))
+    UsuariosService.findAll()
+      .then(({ data }) => setUsuarios(data))
       .finally(() => setLoadingRegisters(false));
     
   }
 
   function filterFuncionarios(event) {
-    setFuncionariosFiltered(
-      funcionarios
+    setUsuariosFiltered(
+      usuarios
         .filter(f => f.nomeCompleto.toLowerCase().includes(event.target.value.toLowerCase()))
     )
   }
@@ -74,12 +77,12 @@ export default function() {
   return (
     <Content style={{ margin: '0 16px'}}>
       <Breadcrumb style={{ margin: '16px 0', fontSize: 24, fontWeight: 500 }}>
-        <Breadcrumb.Item>Funcionários</Breadcrumb.Item>
+        <Breadcrumb.Item>Usuários</Breadcrumb.Item>
       </Breadcrumb>
 
       <div className="site-layout-background" style={{ padding: 16, minHeight: 360 }}>
         <div className="content-header">
-          <Button onClick={handleOpenModalRegister} type="primary">+ Funcionario</Button>
+          <Button onClick={handleOpenModalRegister} type="primary">+ Usuário</Button>
           <div className="search-group">
             <Button onClick={init} loading={loadingRegisters} type='primary' style={{ marginRight: 10 }}>
               Atualizar
@@ -92,11 +95,11 @@ export default function() {
         {loadingRegisters ? (
           <Skeleton style={{ padding: 24, minHeight: 360 }} active />
         ) : (
-          <Table columns={columns} dataSource={funcionariosFiltered ?? funcionarios} rowKey={(row) => row.id} />
+          <Table size='small' columns={columns} dataSource={usuariosFiltered ?? usuarios} rowKey={(row) => row.id} />
         )}
       </div>
 
-      {triggerModal && <ModalFuncionarios onClose={onCloseModalRegister} triggerModal={triggerModal} />}  
+      {triggerModal && <ModalUsuarios onClose={onCloseModalRegister} triggerModal={triggerModal} />}  
     </Content>
   )
 }

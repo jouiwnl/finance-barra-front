@@ -1,14 +1,16 @@
+import React from 'react';
+
 import {
-  FileOutlined,
   DollarCircleOutlined,
   ShoppingCartOutlined,
   TeamOutlined,
   SettingOutlined,
   HomeOutlined,
-  UserOutlined
+  UserOutlined, 
+  BankOutlined
 } from '@ant-design/icons';
+
 import { Avatar, Button, Layout, Menu, Popover } from 'antd';
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { customHistory } from './CustomBrowserRouter'
 import Routes from './routes'
@@ -31,9 +33,11 @@ const items = [
   getItem('Centros de custo', '/centros-custos', <HomeOutlined />),
   getItem('Sintéticas', '/sinteticas', <SettingOutlined />),
   getItem('Analíticas', '/analiticas', <SettingOutlined />),
+  getItem('Bancos', '/bancos', <BankOutlined />),
   getItem('Planos de contas', '/planos-contas', <ShoppingCartOutlined />),
-  getItem('Funcionários', '/funcionarios', <TeamOutlined />),
-  getItem('Relatórios emitidos', '/relatorios', <FileOutlined />)
+  getItem('Impostos', '/impostos', <DollarCircleOutlined />),
+  getItem('Pessoas', '/pessoas', <UserOutlined />),
+  getItem('Usuários', '/usuarios', <TeamOutlined />),
 ];
 
 export default function() {
@@ -98,7 +102,7 @@ export default function() {
       <Layout className="site-layout">
         {authenticated && (
           <Header className="page-header">
-            <p>{currentUser.usuario}</p>
+            <p>{currentUser.user}</p>
             <Popover style={{ textDecoration: 'ellipsis' }} content={<PopoverContent />} title={currentUser.nomeCompleto}>
               <Avatar size={40} icon={<UserOutlined />} />
             </Popover>

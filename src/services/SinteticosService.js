@@ -29,4 +29,8 @@ export class SinteticosService {
 	static findOne(idSintetico) {
 		return api.get(`/sinteticos/${idSintetico}`);
 	}
+
+  static findByCentro(idCentros) {
+		return api.get(`/sinteticos/getByCentros/${idCentros}`);
+	}
 }

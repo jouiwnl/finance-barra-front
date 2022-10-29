@@ -29,4 +29,8 @@ export class PlanosContasService {
 	static findOne(idPlanosContas) {
 		return api.get(`/planos-contas/${idPlanosContas}`);
 	}
+
+  static findByCode(code) {
+		return api.get(`/planos-contas/findByCode/${code}`);
+	}
 }

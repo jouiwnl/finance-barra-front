@@ -29,4 +29,8 @@ export class AnaliticosService {
 	static findOne(idAnalitico) {
 		return api.get(`/analiticos/${idAnalitico}`);
 	}
+
+  static findBySintetico(idSintetico) {
+		return api.get(`/analiticos/getBySintetico/${idSintetico}`);
+	}
 }

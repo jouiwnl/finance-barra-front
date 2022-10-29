@@ -1,19 +1,24 @@
 import React from 'react'
-import { Button, Col, Input, Modal, Row, Select } from 'antd';
+import { Button, Col, Form, Input, Modal, Row, Select } from 'antd';
 
 import { notificar } from '../../../../utils/Notification'
 import Tracker from '../../../../components/Tracker';
 import { SinteticosService } from '../../../../services/SinteticosService';
 import { AnaliticosService } from '../../../../services/AnaliticosService';
 
+import CustomLabel from '../../../../components/CustomLabel';
+
 import _ from 'lodash';
 
 export default function({ idSintetico, triggerModal, onClose }) {
 	const [isModalOpen, setIsModalOpen] = React.useState(triggerModal);
-  const [form, setForm] = React.useState({ analiticos: [] });
   const [loadingSave, setLoadingSave] = React.useState(false);
   const [loadingRegister, setLoadingRegister] = React.useState(false);
+
+  const [sintetico, setSintetico] = React.useState({});
   const [analiticos, setAnaliticos] = React.useState([]);
+
+  const [form] = Form.useForm();
 
   React.useEffect(() => {
     setIsModalOpen(triggerModal)
@@ -22,8 +27,7 @@ export default function({ idSintetico, triggerModal, onClose }) {
 
   function init() {
     AnaliticosService.findAll()
-      .then(response => fixAnaliticos(response.data))
-      .then(fixed => setAnaliticos(fixed));
+      .then(({ data }) => setAnaliticos(data));
 
     if (!idSintetico) {
       return;
@@ -31,21 +35,24 @@ export default function({ idSintetico, triggerModal, onClose }) {
 
     setLoadingRegister(true)
     SinteticosService.findOne(idSintetico)
-      .then(({ data }) => {
-        data.analiticos = fixAnaliticos(data.analiticos);
-
-        setAnaliticos(state => (_.merge([...state], data.analiticos)))
-        setForm(data);
-      })
+      .then(({ data }) => setSintetico(data))
       .finally(() => setLoadingRegister(false));
   }
 
-  function handleSave() {
+  function beforeSave() {
+    form.validateFields()
+      .then(values => {
+        handleSave(values);
+      })
+      .catch((info) => {
+        notificar('error', 'Houve um erro ao validar o formulário. Preencha os campos corretamente');
+      });
+  }
+
+  function handleSave(values) {
     setLoadingSave(true)
 
-    const post = { ...form,  ['analiticos']: fixAnaliticosToSave(form.analiticos)};
-
-    SinteticosService.save(post)
+    SinteticosService.save(values)
       .then(() => {
         notificar('success', 'Registro salvo com sucesso')
         closeModal(true);
@@ -55,27 +62,8 @@ export default function({ idSintetico, triggerModal, onClose }) {
   };
 
   function closeModal() {
-    setAnaliticos([]);
     setIsModalOpen(false);
   };
-
-  function handleInputChange(name, value) {
-    setForm({...form, [name]: value});
-  }
-
-  function fixAnaliticos(params) {
-    return params.map(analitico =>  {  
-      return {
-        ...analitico, 
-        label: analitico.nome, 
-        value: analitico.id
-      }
-    })
-  }
-
-  function fixAnaliticosToSave(analiticos) {
-    return analiticos.map(analitico => analitico.id ? { id: analitico.id } : { id: analitico })
-  }
 
   function ModalFooter() {
     return (
@@ -83,7 +71,7 @@ export default function({ idSintetico, triggerModal, onClose }) {
         <Button key="back" onClick={closeModal}>
           Cancelar
         </Button>
-        <Button key="submit" type="primary" loading={loadingSave} onClick={handleSave}>
+        <Button key="submit" type="primary" loading={loadingSave} onClick={beforeSave}>
           Submit
         </Button>
       </>
@@ -105,25 +93,39 @@ export default function({ idSintetico, triggerModal, onClose }) {
         </div>
       ) : (
         <>
-          <Row>
-            <Col span={24}>
-              <label htmlFor="nome">Nome</label>
-              <Input required id='nome' onChange={(e) => handleInputChange('nome', e.target.value)} value={form.nome ?? ''}/>
-            </Col>
-          </Row>
+          <Form layout="vertical" form={form} initialValues={sintetico}>
+            <Form.Item name="id" style={{ display: 'none' }}></Form.Item>
+            <Row>
+              <Col span={24}>
+                <CustomLabel htmlFor="nome" labelText="Nome" required={true} />
+                <Form.Item 
+                  rules={[{ required: true, message: '' }]} 
+                  name="nome"
+                  style={{ marginBottom: 10 }}
+                >
+                  <Input />
+                </Form.Item>
+              </Col>
+            </Row>
 
-          <Row style={{ marginTop: 15 }}>
-            <Col span={24}>
-              <label htmlFor="cargo">Analíticos</label>
-              <Select 
-                value={form.analiticos} 
-                options={analiticos}
-                mode="multiple"
-                style={{ width: '100%' }}
-                onChange={(c) => handleInputChange('analiticos', c)}
-              />
-            </Col>
-          </Row>
+            <Row>
+              <Col span={24}>
+                <CustomLabel htmlFor="analiticos" labelText="Analíticos" required={true} />
+                <Form.Item 
+                  rules={[{ required: true, message: '' }]} 
+                  name="analiticos"
+                  style={{ marginBottom: 10 }}
+                  normalize={(value) => ([...value].map(value => ({ id: value, value: value })))}
+                >
+                  <Select 
+                    options={analiticos}
+                    mode="multiple"
+                    style={{ width: '100%' }}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
         </>
       )}
       

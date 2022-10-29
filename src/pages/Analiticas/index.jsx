@@ -40,17 +40,24 @@ export default function() {
     {
       title: 'Sintéticos',
       key: 'sinteticos',
-      render: (_, record) => (
-        <Popover style={{ textDecoration: 'ellipsis' }} content={<PopoverContent sinteticos={record.sinteticos} />} title="Sintéticos">
-          <a href='#'>{ record.sinteticos.length }</a>
-        </Popover>
-      )
+      render: (_, record) => {
+        if (record.sinteticos.length) {
+          return <Popover style={{ textDecoration: 'ellipsis' }} content={<PopoverContent sinteticos={record.sinteticos} />} title="Sintéticos">
+                  <a href='#'>{ record.sinteticos.length }</a>
+                </Popover>
+        }
+
+        return <span>{record.sinteticos.length}</span>
+      }
     },
     {
       title: '',
       key: 'acoes',
       align: 'center',
-      render: (_, record) => <Actions reload={init} record={record}/>
+      render: (_, record) => 
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'end' }}>
+          <Actions reload={init} record={record} />
+        </div>
     },
   ];
 
@@ -105,7 +112,7 @@ export default function() {
         {loadingRegisters ? (
           <Skeleton style={{ padding: 24, minHeight: 360 }} active />
         ) : (
-          <Table columns={columns} dataSource={analiticosFiltered ?? analiticos} rowKey={(row) => row.id} />
+          <Table size='small' columns={columns} dataSource={analiticosFiltered ?? analiticos} rowKey={(row) => row.id} />
         )}
       </div>
 

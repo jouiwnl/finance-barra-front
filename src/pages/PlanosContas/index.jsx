@@ -39,7 +39,10 @@ export default function() {
       title: '',
       key: 'acoes',
       align: 'center',
-      render: (_, record) => <Actions reload={init} record={record}/>
+      render: (_, record) => 
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'end' }}>
+          <Actions reload={init} record={record} />
+        </div>
     },
   ];
 
@@ -94,7 +97,7 @@ export default function() {
         {loadingRegisters ? (
           <Skeleton style={{ padding: 24, minHeight: 360 }} active />
         ) : (
-          <Table columns={columns} dataSource={planosFiltered ?? planos} rowKey={(row) => row.id} />
+          <Table size='small' columns={columns} dataSource={planosFiltered ?? planos} rowKey={(row) => row.id} />
         )}
       </div>
 
