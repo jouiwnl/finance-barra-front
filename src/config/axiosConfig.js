@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-	baseURL: "https://finance-app-barra.herokuapp.com/"
+	baseURL: "http://localhost:8080/"
   //https://finance-app-barra.herokuapp.com/
 });
 

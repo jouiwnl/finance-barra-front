@@ -13,7 +13,7 @@ import { ImpostosService } from '../../../../services/ImpostosService';
 
 import CustomLabel from '../../../../components/CustomLabel';
 
-import _ from 'lodash';
+import _, { last } from 'lodash';
 
 const { Search } = Input;
 
@@ -51,7 +51,6 @@ export default function({ idLancamento, triggerModal, onClose, lancamentoEngloba
   const [form] = Form.useForm();
 
   React.useEffect(() => {
-    console.log(lancamentoEnglobado)
     setIsModalOpen(triggerModal)
     init()
   }, [triggerModal])
@@ -66,8 +65,6 @@ export default function({ idLancamento, triggerModal, onClose, lancamentoEngloba
     ImpostosService.findAll()
       .then(({ data }) => setImpostos(data));
 
-    setLancamento({ lancamentoEnglobado: lancamentoEnglobado })
-
     if (!idLancamento) {
       return;
     }
@@ -75,7 +72,8 @@ export default function({ idLancamento, triggerModal, onClose, lancamentoEngloba
     setLoadingRegister(true)
     LancamentosService.findOne(idLancamento)
       .then(({ data }) => {
-        setLancamento(data)
+        setLancamento(state => (_.merge(state, data)))
+        setTipoLancamento(data.tipo)
         setShowMoreOptions(true);
         setIsSelectedCentrosCusto(true);
         setIsSelectedSintetico(true);
@@ -95,7 +93,9 @@ export default function({ idLancamento, triggerModal, onClose, lancamentoEngloba
 
   function handleSave(values) {
     setLoadingSave(true)
-    
+    values.lancamentoEnglobado = lancamentoEnglobado;
+    console.log(values)
+
     LancamentosService.save(values)
       .then(() => {
         notificar('success', 'Registro salvo com sucesso')
@@ -204,7 +204,6 @@ export default function({ idLancamento, triggerModal, onClose, lancamentoEngloba
 
           <Form layout="vertical" form={form} initialValues={lancamento}>
             <Form.Item name="id" style={{ display: 'none' }}></Form.Item>
-            <Form.Item name="lancamentoEnglobado" style={{ display: 'none' }}></Form.Item>
 
             <Row gutter={16}>
               <Col span={12}>

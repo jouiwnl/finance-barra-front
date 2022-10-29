@@ -54,7 +54,7 @@ export default function({ record, reload }) {
         </Button>
       </Popconfirm>
 
-			{triggerModal && <ModalLancamentos onClose={onCloseModal} idLancamento={record.id} triggerModal={triggerModal} />}
+			{triggerModal && <ModalLancamentos lancamentoEnglobado={record.lancamentoEnglobado} onClose={onCloseModal} idLancamento={record.id} triggerModal={triggerModal} />}
 		</Space>
 	)
 }
