@@ -7,7 +7,10 @@ import {
   SettingOutlined,
   HomeOutlined,
   UserOutlined, 
-  BankOutlined
+  BankOutlined,
+  FormOutlined,
+  BarcodeOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
 
 import { Avatar, Button, Layout, Menu, Popover } from 'antd';
@@ -30,14 +33,20 @@ function getItem(label, key, icon, children) {
 
 const items = [
   getItem('Lançamentos Englobados', '/lancamentos-englobados', <DollarCircleOutlined />),
-  getItem('Centros de custo', '/centros-custos', <HomeOutlined />),
-  getItem('Sintéticas', '/sinteticas', <SettingOutlined />),
-  getItem('Analíticas', '/analiticas', <SettingOutlined />),
-  getItem('Bancos', '/bancos', <BankOutlined />),
-  getItem('Planos de contas', '/planos-contas', <ShoppingCartOutlined />),
-  getItem('Impostos', '/impostos', <DollarCircleOutlined />),
-  getItem('Pessoas', '/pessoas', <UserOutlined />),
-  getItem('Usuários', '/usuarios', <TeamOutlined />),
+  getItem('Cadastros gerais', 'sub1', <FormOutlined />, [
+    getItem('Centros de custo', '/centros-custos', <HomeOutlined />),
+    getItem('Sintéticas', '/sinteticas', <ThunderboltOutlined />),
+    getItem('Analíticas', '/analiticas', <ThunderboltOutlined />),
+    getItem('Pessoas', '/pessoas', <UserOutlined />),
+  ]),
+  getItem('Contas e taxas', 'sub2', <BarcodeOutlined />, [
+    getItem('Bancos', '/bancos', <BankOutlined />),
+    getItem('Planos de contas', '/planos-contas', <ShoppingCartOutlined />),
+    getItem('Impostos e taxas', '/impostos', <DollarCircleOutlined />),
+  ]),
+  getItem('Configurações', 'sub3', <SettingOutlined />, [
+    getItem('Usuários', '/usuarios', <TeamOutlined />)
+  ]), 
 ];
 
 export default function() {
@@ -56,6 +65,7 @@ export default function() {
   }, [authenticated])
 
   function handleSelectItem(selected) {
+    if (selected.key.startsWith('sub')) return;
     customHistory.push(selected.key)
   }
 

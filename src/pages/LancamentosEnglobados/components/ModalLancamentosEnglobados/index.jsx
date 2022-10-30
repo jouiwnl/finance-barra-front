@@ -38,7 +38,10 @@ export default function({ idLancamentoEnglobado, triggerModal, onClose }) {
 
     setLoadingRegister(true)
     LancamentosEnglobadosService.findOne(idLancamentoEnglobado)
-      .then(({ data }) => setLancamentoEnglobado(data))
+      .then(({ data }) => {
+        data.dataLancamento = moment(data.dataLancamento);
+        setLancamentoEnglobado(data)
+      })
       .finally(() => setLoadingRegister(false));
   }
 
@@ -100,6 +103,7 @@ export default function({ idLancamentoEnglobado, triggerModal, onClose }) {
           <Form layout="vertical" form={form} initialValues={lancamentoEnglobado}>
             <Form.Item name="id" style={{ display: 'none' }}></Form.Item>
             <Form.Item name="status" style={{ display: 'none' }}></Form.Item>
+            <Form.Item name="lancamentos" style={{ display: 'none' }}></Form.Item>
 
             <Row>
               <Col span={24}>
@@ -126,7 +130,6 @@ export default function({ idLancamentoEnglobado, triggerModal, onClose }) {
                   rules={[{ required: true, message: '' }]} 
                   name="dataLancamento"
                   style={{ marginBottom: 10 }}
-                  initialValue={moment(form.dataLancamento)}
                 >
                   <DatePicker style={{ width: '100%' }} />
                 </Form.Item>                

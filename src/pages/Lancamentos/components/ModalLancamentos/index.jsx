@@ -13,7 +13,7 @@ import { ImpostosService } from '../../../../services/ImpostosService';
 
 import CustomLabel from '../../../../components/CustomLabel';
 
-import _, { last } from 'lodash';
+import _ from 'lodash';
 
 const { Search } = Input;
 

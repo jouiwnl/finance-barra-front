@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { Button, PageHeader, Row, Statistic, Table, Tag } from 'antd';
-import { SyncOutlined, CheckCircleOutlined } from '@ant-design/icons'
+import { Button, Col, PageHeader, Row, Statistic, Table, Tag } from 'antd';
+import { SyncOutlined, CheckCircleOutlined, FilePdfOutlined } from '@ant-design/icons'
 import { useParams } from 'react-router-dom';
 import Tracker from '../../components/Tracker';
 import { LancamentosEnglobadosService } from '../../services/LancamentosEnglobadosService'
@@ -9,6 +9,9 @@ import Actions from './components/Actions'
 
 import moment from 'moment';
 import ModalLancamentos from './components/ModalLancamentos';
+
+import jsPDFInvoiceTemplate from "jspdf-invoice-template";
+import getDocumentProps from '../../utils/getDocumentProps';
 
 export default function() {
 
@@ -52,9 +55,6 @@ export default function() {
       render: (_, record) => {
         return <span>
           {record.centrosCusto ? record.centrosCusto.sigla : '' } 
-          <small>
-            { record.centrosCusto ? `(${record.centrosCusto.nome})` : '' }
-          </small>
         </span>
       }
     },
@@ -137,6 +137,18 @@ export default function() {
 		}
 	}
 
+  function handleGerarRelatorio() {
+    const props = {
+      numeroCheque: lancamentoEnglobado.numeroCheque,
+      data: moment(lancamentoEnglobado.dataLancamento).format('DD/MM/YYYY'),
+      lancamentos: lancamentos,
+      banco: lancamentoEnglobado.banco.nome,
+      totalLancado
+    }
+    
+    jsPDFInvoiceTemplate(getDocumentProps(props)).jsPDFDocObject;
+  }
+
   return (
     <>
       <PageHeader
@@ -144,9 +156,18 @@ export default function() {
         title={`Lançamento englobado ${moment(lancamentoEnglobado.dataLancamento).format('DD/MM/YYYY')}`}
         tags={<StatusEnglobado englobado={lancamentoEnglobado} />}
         extra={[
-          <Button disabled={lancamentoEnglobado.status === 'HOMOLOGADO'} onClick={handleOpenModalRegister} key="1" type="primary">
-            + Lançamento
-          </Button>
+          <Row key="1" gutter={16}>
+            <Col col={12}>
+              <Button icon={<FilePdfOutlined />} disabled={lancamentoEnglobado.status !== 'HOMOLOGADO' || !lancamentos.length} onClick={handleGerarRelatorio}>
+                Gerar relatório
+              </Button>
+            </Col> 
+            <Col col={12}>
+              <Button disabled={lancamentoEnglobado.status === 'HOMOLOGADO'} onClick={handleOpenModalRegister} type="primary">
+                + Lançamento
+              </Button>
+            </Col>           
+          </Row>
         ]}
       >
         <Row style={{ display: 'flex', justifyContent: 'space-between' }}>

@@ -5,6 +5,7 @@ import React from 'react';
 import { UsuariosService } from '../../services/UsuariosService';
 import Actions from './components/Actions';
 import ModalUsuarios from './components/ModalUsuarios';
+import AccessError from '../../components/AccessError';
 
 const { Content } = Layout;
 const { Search } = Input;
@@ -14,6 +15,7 @@ export default function() {
   const [usuariosFiltered, setUsuariosFiltered] = React.useState(null)
   const [loadingRegisters, setLoadingRegisters] = React.useState(false);
   const [triggerModal, setTriggerModal] = React.useState(false)
+  const [showPermissionAlert, setShowPermissionAlert] = React.useState(false);
 
   const columns = [
     {
@@ -63,6 +65,11 @@ export default function() {
 
     UsuariosService.findAll()
       .then(({ data }) => setUsuarios(data))
+      .catch(err => {
+        if (err.response.status === 403) {
+          setShowPermissionAlert(true)
+        }
+      })
       .finally(() => setLoadingRegisters(false));
     
   }
@@ -75,31 +82,37 @@ export default function() {
   }
 
   return (
-    <Content style={{ margin: '0 16px'}}>
-      <Breadcrumb style={{ margin: '16px 0', fontSize: 24, fontWeight: 500 }}>
-        <Breadcrumb.Item>Usuários</Breadcrumb.Item>
-      </Breadcrumb>
+    <>
+      {showPermissionAlert ? (
+        <AccessError />
+      ) : (
+        <Content style={{ margin: '0 16px'}}>
+          <Breadcrumb style={{ margin: '16px 0', fontSize: 24, fontWeight: 500 }}>
+            <Breadcrumb.Item>Usuários</Breadcrumb.Item>
+          </Breadcrumb>
 
-      <div className="site-layout-background" style={{ padding: 16, minHeight: 360 }}>
-        <div className="content-header">
-          <Button onClick={handleOpenModalRegister} type="primary">+ Usuário</Button>
-          <div className="search-group">
-            <Button onClick={init} loading={loadingRegisters} type='primary' style={{ marginRight: 10 }}>
-              Atualizar
-            </Button>
-            
-            <Search allowClear onChange={filterFuncionarios} style={{ width: 300 }} placeholder="input search text" enterButton />
+          <div className="site-layout-background" style={{ padding: 16, minHeight: 360 }}>
+            <div className="content-header">
+              <Button onClick={handleOpenModalRegister} type="primary">+ Usuário</Button>
+              <div className="search-group">
+                <Button onClick={init} loading={loadingRegisters} type='primary' style={{ marginRight: 10 }}>
+                  Atualizar
+                </Button>
+                
+                <Search allowClear onChange={filterFuncionarios} style={{ width: 300 }} placeholder="input search text" enterButton />
+              </div>
+            </div>
+
+            {loadingRegisters ? (
+              <Skeleton style={{ padding: 24, minHeight: 360 }} active />
+            ) : (
+              <Table size='small' columns={columns} dataSource={usuariosFiltered ?? usuarios} rowKey={(row) => row.id} />
+            )}
           </div>
-        </div>
 
-        {loadingRegisters ? (
-          <Skeleton style={{ padding: 24, minHeight: 360 }} active />
-        ) : (
-          <Table size='small' columns={columns} dataSource={usuariosFiltered ?? usuarios} rowKey={(row) => row.id} />
-        )}
-      </div>
-
-      {triggerModal && <ModalUsuarios onClose={onCloseModalRegister} triggerModal={triggerModal} />}  
-    </Content>
+          {triggerModal && <ModalUsuarios onClose={onCloseModalRegister} triggerModal={triggerModal} />}  
+        </Content>
+      )}
+    </>
   )
 }

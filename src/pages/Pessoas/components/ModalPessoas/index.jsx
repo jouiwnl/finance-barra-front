@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button, Col, Form, Input, Modal, Row, Select, Space } from 'antd';
+import { Button, Col, Form, Input, Modal, Row, Select, Space, Switch } from 'antd';
 
 import { notificar } from '../../../../utils/Notification'
 import Tracker from '../../../../components/Tracker';
@@ -11,7 +11,7 @@ import CustomLabel from '../../../../components/CustomLabel';
 import { MaskedInput } from 'antd-mask-input';
 
 import _ from 'lodash';
-import { isValidCPF } from '../../../../utils/checkUtil';
+import { isValidCnpj, isValidCPF } from '../../../../utils/checkUtil';
 
 const tiposPessoa = [
   { label: 'Funcionário', value: 'FUNCIONARIO' },
@@ -22,6 +22,7 @@ export default function({ idPessoa, triggerModal, onClose }) {
 	const [isModalOpen, setIsModalOpen] = React.useState(triggerModal);
   const [loadingSave, setLoadingSave] = React.useState(false);
   const [loadingRegister, setLoadingRegister] = React.useState(false);
+  const [isCnpj, setIsCnpj] = React.useState(false);
   const [centrosCustos, setCentrosCustos] = React.useState([]);
 
   const [pessoa, setPessoa] = React.useState([])
@@ -116,23 +117,6 @@ export default function({ idPessoa, triggerModal, onClose }) {
           </Row>
 
           <Row gutter={16}>
-            <Col span={16}>
-              <CustomLabel htmlFor="cpfCnpj" labelText="CPF/CNPJ" required={true} />
-              <Form.Item 
-                  rules={[
-                    { required: true, message: '' }, 
-                    { validator: async (rule, value) => {
-                      if (isValidCPF(value)) return;
-                      throw new Error('Cpf inválido')
-                    }}
-                  ]} 
-                  name="cpfCnpj"
-                  style={{ marginBottom: 10 }}
-                >
-                  <MaskedInput mask='000.000.000-00' />
-              </Form.Item>
-            </Col>
-
             <Col span={8}>
               <CustomLabel htmlFor="tipoPessoa" labelText="Tipo" required={true} />
               <Form.Item 
@@ -143,7 +127,35 @@ export default function({ idPessoa, triggerModal, onClose }) {
                 <Select 
                   options={tiposPessoa}
                   style={{ width: '100%' }}
+                  onChange={(value) => {
+                    value === 'FORNECEDOR' ? setIsCnpj(true) : setIsCnpj(false);
+                    form.setFieldValue('cpfCnpj', '')
+                  }}
                 />
+              </Form.Item>
+            </Col>
+
+            <Col span={16}>
+              <CustomLabel htmlFor="cpfCnpj" labelText="CPF/CNPJ" required={true} />
+              <Form.Item 
+                  rules={[
+                    { required: true, message: '' }, 
+                    { validator: async (rule, value) => {
+                      if (isCnpj) {
+                        if (!isValidCnpj(value)) {
+                          throw new Error('Cnpj inválido') 
+                        }
+                      } else {
+                        if (!isValidCPF(value)) {
+                          throw new Error('Cpf inválido') 
+                        }
+                      }
+                    }}
+                  ]} 
+                  name="cpfCnpj"
+                  style={{ marginBottom: 10 }}
+                >
+                  <MaskedInput mask={isCnpj ? '00.000.000/0000-00' : '000.000.000-00'} />
               </Form.Item>
             </Col>
           </Row>
