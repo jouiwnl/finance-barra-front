@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-	baseURL: "https://finance-app-barra.herokuapp.com/"
+	baseURL: "https://finance-barra-production.up.railway.app/"
   //https://finance-app-barra.herokuapp.com/
 });
 
